@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SocialMini</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & Base ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0a0a0f;
+      --bg-panel:    #111118;
+      --bg-card:     #16161f;
+      --bg-elevated: #1d1d28;
+      --border:      #2a2a38;
+      --border-glow: #3d3d55;
+
+      --text:        #e8e8f0;
+      --text-muted:  #6b6b85;
+      --text-faint:  #3a3a50;
+
+      --amber:       #f5a623;
+      --amber-dim:   #7a5010;
+      --rose:        #e8567a;
+      --rose-dim:    #5c1a2d;
+      --teal:        #4ecdc4;
+      --teal-dim:    #1a4a47;
+
+      --accent:      #7c6ef0;
+      --accent-2:    #9d8ff5;
+      --accent-glow: rgba(124,110,240,0.18);
+
+      --radius-sm:   6px;
+      --radius:      12px;
+      --radius-lg:   18px;
+      --radius-xl:   24px;
+
+      --font-head:   'Syne', sans-serif;
+      --font-body:   'DM Sans', sans-serif;
+
+      --shadow-sm:   0 2px 8px rgba(0,0,0,0.4);
+      --shadow:      0 4px 20px rgba(0,0,0,0.5);
+      --shadow-lg:   0 8px 40px rgba(0,0,0,0.7);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      font-size: 15px;
+      overflow-x: hidden;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,110,240,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,110,240,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout ───────────────────────────────────── */
+    .app-wrap {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 300px 1fr 280px;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+      max-width: 1280px;
+      margin: 0 auto;
+      gap: 0 24px;
+      padding: 0 16px;
+    }
+
+    /* ── Navbar ───────────────────────────────────── */
+    .navbar {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 28px;
+      gap: 12px;
+    }
+
+    .navbar-logo {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .navbar-logo-mark {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent), var(--rose));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: white;
+    }
+
+    .navbar-spacer { flex: 1; }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .nav-btn--ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .nav-btn--ghost:hover {
+      border-color: var(--border-glow);
+      color: var(--text);
+    }
+
+    .nav-btn--primary {
+      background: linear-gradient(135deg, var(--accent), #6357d4);
+      color: white;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .nav-btn--primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 24px rgba(124,110,240,0.35);
+    }
+
+    /* ── Sidebar ──────────────────────────────────── */
+    .sidebar {
+      grid-column: 1;
+      padding-bottom: 40px;
+      position: sticky;
+      top: 24px;
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .sidebar::-webkit-scrollbar { display: none; }
+
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .panel-header {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-head);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* Profile panel */
+    #noUserPanel { padding: 28px 20px; text-align: center; }
+    #noUserPanel p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 18px;
+    }
+
+    #activeUserPanel { padding: 24px 20px; }
+
+    .profile-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .profile-avatar-large {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--rose));
+      font-family: var(--font-head);
+      font-size: 1.4rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(124,110,240,0.3);
+    }
+
+    #profileUsername {
+      font-family: var(--font-head);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    #profileBio {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: var(--bg-elevated);
+      padding: 10px 6px;
+      text-align: center;
+    }
+
+    .stat-box strong {
+      display: block;
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-box span {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Login select */
+    .login-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    select, input, textarea {
+      font-family: var(--font-body);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      font-size: 0.875rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      width: 100%;
+    }
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    select option { background: var(--bg-panel); }
+    textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+    /* People list */
+    .people-list {
+      list-style: none;
+      padding: 8px 0;
+    }
+
+    .people-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      transition: background 0.15s;
+    }
+    .people-item:hover { background: var(--bg-elevated); }
+
+    .people-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--teal-dim), var(--teal));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .people-info { flex: 1; min-width: 0; }
+    .people-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .people-followers { font-size: 0.73rem; color: var(--text-muted); }
+
+    .follow-btn {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 500;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .follow-btn:hover {
+      background: var(--accent);
+      color: white;
+    }
+    .follow-btn.following {
+      border-color: var(--border-glow);
+      color: var(--text-muted);
+    }
+    .follow-btn.following:hover {
+      border-color: var(--rose);
+      color: var(--rose);
+      background: transparent;
+    }
+
+    /* ── Main Feed ────────────────────────────────── */
+    .feed {
+      grid-column: 2;
+      padding-bottom: 40px;
+    }
+
+    .feed-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .feed-title {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .icon-btn:hover {
+      border-color: var(--border-glow);
+      color: var(--text);
+      transform: rotate(30deg);
+    }
+
+    #feedLoading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .loader-ring {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Post Cards */
+    .post-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s, transform 0.2s;
+      animation: fadeSlideIn 0.4s ease both;
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .post-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-1px);
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .post-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, var(--accent), var(--rose));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .post-author {
+      font-family: var(--font-head);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .post-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .post-content {
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text);
+      margin-bottom: 16px;
+      word-break: break-word;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .action-btn:hover {
+      border-color: var(--border-glow);
+      color: var(--text);
+      background: var(--bg-elevated);
+    }
+
+    .action-btn__icon { font-size: 1rem; }
+
+    .like-btn.liked {
+      background: var(--rose-dim);
+      border-color: var(--rose);
+      color: var(--rose);
+    }
+    .like-btn:hover { border-color: var(--rose); color: var(--rose); }
+
+    .comment-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* Empty Feed */
+    .empty-feed {
+      text-align: center;
+      padding: 64px 20px;
+      color: var(--text-muted);
+    }
+    .empty-feed__icon {
+      display: block;
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+    .empty-feed p { font-size: 0.9rem; }
+
+    /* ── Right Sidebar ────────────────────────────── */
+    .right-sidebar {
+      grid-column: 3;
+      padding-bottom: 40px;
+      position: sticky;
+      top: 24px;
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .right-sidebar::-webkit-scrollbar { display: none; }
+
+    .trending-tag {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    .trending-tag:hover { background: var(--bg-elevated); }
+    .trending-tag__pill {
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--accent-2);
+      font-family: var(--font-head);
+    }
+    .trending-tag__label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Buttons ──────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #6357d4);
+      color: white;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(124,110,240,0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-outline:hover {
+      border-color: var(--border-glow);
+      color: var(--text);
+      background: var(--bg-elevated);
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid var(--rose-dim);
+      color: var(--rose);
+    }
+    .btn-danger:hover { background: var(--rose-dim); }
+
+    .btn-sm {
+      padding: 7px 14px;
+      font-size: 0.8rem;
+      border-radius: var(--radius-sm);
+      width: auto;
+    }
+
+    /* ── Modal Overlay ────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 5, 12, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+      animation: fadeIn 0.15s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-overlay.hidden { display: none; }
+
+    .modal {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-glow);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 480px;
+      box-shadow: var(--shadow-lg), 0 0 60px rgba(124,110,240,0.1);
+      animation: modalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.93) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+    .modal-close:hover {
+      border-color: var(--rose);
+      color: var(--rose);
+      background: var(--rose-dim);
+    }
+
+    .modal-body { padding: 24px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 7px;
+    }
+    .form-label .req { color: var(--rose); }
+
+    .char-row {
+      display: flex;
+      justify-content: flex-end;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    /* ── Comments Modal ───────────────────────────── */
+    #commentsModal .modal { max-width: 520px; max-height: 90vh; display: flex; flex-direction: column; }
+    #commentsModal .modal-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 0; }
+
+    .comments-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .comments-list::-webkit-scrollbar { width: 4px; }
+    .comments-list::-webkit-scrollbar-track { background: transparent; }
+    .comments-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .comment-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      animation: fadeSlideIn 0.3s ease both;
+    }
+
+    .comment-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--amber-dim), var(--amber));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .comment-body { flex: 1; }
+    .comment-author {
+      font-family: var(--font-head);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .comment-text {
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .comment-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+
+    .no-comments {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .comment-input-bar {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      background: var(--bg-elevated);
+    }
+
+    .comment-input-bar textarea {
+      flex: 1;
+      min-height: 40px;
+      max-height: 100px;
+      resize: none;
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 0.875rem;
+    }
+
+    /* ── Error / Toast ────────────────────────────── */
+    .error-msg {
+      background: rgba(232,86,122,0.1);
+      border: 1px solid var(--rose-dim);
+      color: var(--rose);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      margin-bottom: 14px;
+    }
+    .error-msg.hidden { display: none; }
+
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(0);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-glow);
+      color: var(--text);
+      padding: 12px 22px;
+      border-radius: 30px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      z-index: 9999;
+      white-space: nowrap;
+      animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    .toast.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) translateY(20px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .toast.success { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+    .toast.error   { border-color: var(--rose); color: var(--rose); background: var(--rose-dim); }
+
+    /* ── Author hint ──────────────────────────────── */
+    .author-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .author-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+
+    /* ── Divider ──────────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-faint);
+      font-size: 0.75rem;
+      margin: 14px 0;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Responsive ───────────────────────────────── */
+    @media (max-width: 1100px) {
+      .app-wrap { grid-template-columns: 260px 1fr; }
+      .right-sidebar { display: none; }
+    }
+    @media (max-width: 720px) {
+      .app-wrap { grid-template-columns: 1fr; gap: 0; }
+      .sidebar { position: static; max-height: unset; }
+      .feed { grid-column: 1; }
+      .right-sidebar { display: none; }
+      .navbar-logo-mark + span { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-wrap">
+
+  <!-- ── Navbar ── -->
+  <nav class="navbar">
+    <div class="navbar-logo">
+      <div class="navbar-logo-mark">✦</div>
+      SocialMini
+    </div>
+    <div class="navbar-spacer"></div>
+    <button class="nav-btn nav-btn--ghost" id="navProfileBtn">⊙ Profile</button>
+    <button class="nav-btn nav-btn--primary" id="navNewPostBtn">＋ New Post</button>
+  </nav>
+
+  <!-- ── Left Sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Not Logged In -->
+    <div class="panel" id="noUserPanel">
+      <p>You're not logged in.</p>
+      <button class="btn btn-primary" id="openCreateProfileBtn" style="margin-bottom:12px">✦ Create Profile</button>
+      <div class="divider">or sign in</div>
+      <div class="login-row">
+        <select id="loginSelect" style="flex:1">
+          <option value="">— Select user —</option>
+        </select>
+        <button class="btn btn-outline btn-sm" id="loginBtn">Log In</button>
+      </div>
+    </div>
+
+    <!-- Logged In -->
+    <div class="panel hidden" id="activeUserPanel">
+      <div class="profile-top">
+        <div class="profile-avatar-large" id="profileAvatar">?</div>
+        <div>
+          <div id="profileUsername">@username</div>
+          <div id="profileBio"></div>
+        </div>
+      </div>
+      <div class="profile-stats">
+        <div class="stat-box"><strong id="statPosts">0</strong><span>Posts</span></div>
+        <div class="stat-box"><strong id="statFollowers">0</strong><span>Followers</span></div>
+        <div class="stat-box"><strong id="statFollowing">0</strong><span>Following</span></div>
+      </div>
+      <button class="btn btn-danger" id="logoutBtn">↩ Switch User</button>
+    </div>
+
+    <!-- People -->
+    <div class="panel">
+      <div class="panel-header">People to follow</div>
+      <ul class="people-list" id="peopleList"></ul>
+    </div>
+
+  </aside>
+
+  <!-- ── Main Feed ── -->
+  <main class="feed">
+    <div class="feed-header">
+      <h2 class="feed-title">Your Feed</h2>
+      <button class="icon-btn" id="refreshFeed" title="Refresh">↻</button>
+    </div>
+
+    <div id="feedLoading" class="hidden">
+      <div class="loader-ring"></div>
+      Loading posts…
+    </div>
+
+    <div id="feedPosts"></div>
+  </main>
+
+  <!-- ── Right Sidebar ── -->
+  <aside class="right-sidebar">
+    <div class="panel">
+      <div class="panel-header">Trending Topics</div>
+      <div class="trending-tag"><span class="trending-tag__pill">#dev</span><span class="trending-tag__label">12 posts</span></div>
+      <div class="trending-tag"><span class="trending-tag__pill">#design</span><span class="trending-tag__label">9 posts</span></div>
+      <div class="trending-tag"><span class="trending-tag__pill">#news</span><span class="trending-tag__label">7 posts</span></div>
+      <div class="trending-tag"><span class="trending-tag__pill">#ai</span><span class="trending-tag__label">5 posts</span></div>
+    </div>
+    <div class="panel" style="padding:20px;font-size:.8rem;color:var(--text-muted);line-height:1.7">
+      <div style="font-family:var(--font-head);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;color:var(--text-faint)">About</div>
+      SocialMini · A minimal social platform.<br>Share thoughts, follow people, join the conversation.
+    </div>
+  </aside>
+
+</div><!-- /.app-wrap -->
+
+
+<!-- ── Create Profile Modal ── -->
+<div class="modal-overlay hidden" id="createProfileModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">✦ Create Profile</span>
+      <button class="modal-close" id="closeCreateProfileModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="createProfileError" class="error-msg hidden"></div>
+      <div class="form-group">
+        <label class="form-label">Username <span class="req">*</span></label>
+        <input type="text" id="newUsername" placeholder="@yourname" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email <span class="req">*</span></label>
+        <input type="email" id="newEmail" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bio</label>
+        <textarea id="newBio" placeholder="Tell us about yourself (160 chars max)" maxlength="160"></textarea>
+      </div>
+      <button class="btn btn-primary" id="submitCreateProfile">Create Profile →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── New Post Modal ── -->
+<div class="modal-overlay hidden" id="newPostModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">New Post</span>
+      <button class="modal-close" id="closeNewPostModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="newPostError" class="error-msg hidden"></div>
+      <div id="postAuthorHint" class="author-hint"><span class="author-dot"></span> Posting as @…</div>
+      <div class="form-group">
+        <textarea id="postContent" placeholder="Share something…" maxlength="500" rows="5"></textarea>
+        <div class="char-row"><span id="postCharCount">0</span> / 500</div>
+      </div>
+      <button class="btn btn-primary" id="submitNewPost">Publish ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Comments Modal ── -->
+<div class="modal-overlay hidden" id="commentsModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">💬 Comments</span>
+      <button class="modal-close" id="closeCommentsModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="comments-list" id="commentsList"></div>
+      <div class="comment-input-bar">
+        <textarea id="commentText" placeholder="Write a comment…" rows="1"></textarea>
+        <div id="commentError" class="error-msg hidden"></div>
+        <button class="btn btn-primary btn-sm" id="submitComment">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast ── -->
+<div class="toast hidden" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
